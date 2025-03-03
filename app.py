@@ -55,17 +55,18 @@ async def initialize_tdlib():
     await initialize_client()
     print("Cliente TDLib inicializado com sucesso!")
 
-# Função principal
-if __name__ == "__main__":
+# Inicializar o cliente TDLib na inicialização do aplicativo
+@app.on_event("startup")
+async def startup_event():
     # Cria e inicia os diretórios necessários
     os.makedirs(os.environ.get("TD_DATABASE_DIRECTORY", "./td_db"), exist_ok=True)
     os.makedirs(os.environ.get("TD_FILES_DIRECTORY", "./td_files"), exist_ok=True)
     
-    # Inicializa o cliente TDLib em um novo evento de loop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(initialize_tdlib())
-    
+    # Inicializa o cliente TDLib
+    await initialize_tdlib()
+
+# Função principal
+if __name__ == "__main__":
     # Inicia o servidor Uvicorn
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=bool(os.environ.get("DEBUG", "False") == "True")) 
+    uvicorn.run(app, host="0.0.0.0", port=port, reload=bool(os.environ.get("DEBUG", "False") == "True")) 
