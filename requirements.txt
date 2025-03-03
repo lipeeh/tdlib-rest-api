@@ -4,7 +4,8 @@ python-dotenv==1.0.0
 python-multipart==0.0.6
 pydantic==2.5.2
 PyJWT==2.8.0
-python-tdlib==0.4.4
+# O pacote python-tdlib será instalado separadamente no Dockerfile
+# python-tdlib==0.4.4
 aiofiles==23.2.1
 cryptography==41.0.5
 httpx==0.25.2 

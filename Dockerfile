@@ -25,14 +25,19 @@ RUN git clone https://github.com/tdlib/td.git && \
     cd ../.. && \
     rm -rf td
 
-WORKDIR /app
+# Configura as variáveis de ambiente para o TDLib
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-# Copia apenas os arquivos necessários primeiro para aproveitar o cache do Docker
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
 # Cria diretórios para os dados da TDLib
 RUN mkdir -p /app/td_db /app/td_files
+
+# Copia apenas os arquivos necessários primeiro para aproveitar o cache do Docker
+COPY requirements.txt .
+
+# Instala as dependências Python
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o restante dos arquivos
 COPY . .

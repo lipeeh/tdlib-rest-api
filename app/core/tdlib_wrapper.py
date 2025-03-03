@@ -2,9 +2,10 @@ import asyncio
 import json
 import os
 import logging
+import ctypes
+import platform
 from typing import Dict, List, Any, Optional
 from pathlib import Path
-from python_tdlib.client import Client
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -19,6 +20,79 @@ TD_FILES_DIRECTORY = os.environ.get("TD_FILES_DIRECTORY", "./td_files")
 
 # Cliente TDLib global
 tg = None
+
+# Carrega a biblioteca TDLib
+def _load_tdjson():
+    if platform.system() == 'Darwin':
+        tdjson = ctypes.CDLL('libtdjson.dylib')
+    elif platform.system() == 'Linux':
+        tdjson = ctypes.CDLL('libtdjson.so')
+    elif platform.system() == 'Windows':
+        tdjson = ctypes.CDLL('tdjson.dll')
+    else:
+        raise Exception('Sistema operacional não suportado')
+        
+    # Configura os tipos de retorno das funções
+    tdjson.td_json_client_create.restype = ctypes.c_void_p
+    tdjson.td_json_client_receive.restype = ctypes.c_char_p
+    tdjson.td_json_client_execute.restype = ctypes.c_char_p
+    
+    return tdjson
+
+class SimpleTDLibClient:
+    def __init__(self):
+        self._tdjson = _load_tdjson()
+        self._client = self._tdjson.td_json_client_create()
+        
+    async def receive(self, timeout=1.0):
+        """Recebe uma atualização do TDLib."""
+        result = None
+        try:
+            result_ptr = self._tdjson.td_json_client_receive(self._client, ctypes.c_double(timeout))
+            if result_ptr:
+                result_str = ctypes.string_at(result_ptr).decode('utf-8')
+                result = json.loads(result_str)
+        except Exception as e:
+            logger.error(f"Erro ao receber atualização: {e}")
+        
+        return result
+    
+    async def send(self, query):
+        """Envia uma solicitação para o TDLib."""
+        query_json = json.dumps(query).encode('utf-8')
+        self._tdjson.td_json_client_send(self._client, query_json)
+    
+    async def execute(self, query):
+        """Executa uma solicitação síncrona no TDLib."""
+        query_json = json.dumps(query).encode('utf-8')
+        result_ptr = self._tdjson.td_json_client_execute(self._client, query_json)
+        if result_ptr:
+            result_str = ctypes.string_at(result_ptr).decode('utf-8')
+            return json.loads(result_str)
+        return None
+    
+    async def call_method(self, method_name, params):
+        """Chama um método TDLib e aguarda a resposta."""
+        query = {'@type': method_name, **params}
+        
+        # Adiciona um extra para identificar facilmente a resposta
+        request_id = f"{method_name}_{asyncio.get_event_loop().time()}"
+        query['@extra'] = request_id
+        
+        # Envia a solicitação
+        await self.send(query)
+        
+        # Aguarda a resposta
+        while True:
+            update = await self.receive(10.0)
+            if update and update.get('@extra') == request_id:
+                return update
+    
+    def destroy(self):
+        """Destrói o cliente TDLib."""
+        if self._client:
+            self._tdjson.td_json_client_destroy(self._client)
+            self._client = None
 
 class TDLibWrapper:
     def __init__(self):
@@ -38,7 +112,7 @@ class TDLibWrapper:
         Path(TD_FILES_DIRECTORY).mkdir(parents=True, exist_ok=True)
         
         # Inicializa o cliente
-        self.client = Client()
+        self.client = SimpleTDLibClient()
         
         # Configura o TDLib
         await self.client.call_method(
