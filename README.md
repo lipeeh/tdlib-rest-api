@@ -1,85 +1,110 @@
-# Telegram TDLib API REST
+# Telegram API
 
-Uma API REST para integração com o Telegram usando a biblioteca TDLib, projetada para ser facilmente implantada com Docker e EasyPanel.
+API REST para integração com o Telegram usando TDLib, fornecendo uma interface simples e poderosa para bots e contas de usuário.
 
-## Recursos
+## Visão Geral
 
-- Autenticação via JWT para segurança da API
-- Endpoints para gerenciar usuários, chats e mensagens
-- Compatível com Docker e EasyPanel
-- Documentação automática com Swagger UI
+Esta API fornece endpoints para interagir com o Telegram através da biblioteca TDLib, permitindo:
+
+- Autenticação com bots ou contas de usuário
+- Envio e recebimento de mensagens
+- Gerenciamento de chats e grupos
+- Manipulação de mídia e arquivos
+- Configuração de webhooks para notificações
+- Gerenciamento de bots
+
+## Estrutura do Projeto
+
+```
+├── app/                   # Pacote principal da aplicação
+│   ├── api/               # Endpoints da API
+│   ├── services/          # Serviços de integração
+│   ├── utils/             # Utilitários
+│   ├── webhooks/          # Manipuladores de webhooks
+│   └── __init__.py        # Arquivo de inicialização da aplicação
+├── main.py                # Ponto de entrada da aplicação
+├── Dockerfile             # Configuração para contêinerização
+├── requirements.txt       # Dependências do projeto
+└── .env.example           # Exemplo de variáveis de ambiente
+```
+
+## Endpoints
+
+A API fornece os seguintes grupos de endpoints:
+
+- `/api/v1/auth`: Autenticação e gerenciamento de sessões
+- `/api/v1/users`: Operações relacionadas a usuários
+- `/api/v1/chats`: Operações relacionadas a chats e grupos
+- `/api/v1/messages`: Envio e gerenciamento de mensagens
+- `/api/v1/media`: Upload, download e manipulação de mídia
+- `/api/v1/webhooks`: Configuração de webhooks para notificações
+- `/api/v1/bots`: Gerenciamento de bots e comandos
+- `/api/v1/files`: Operações com arquivos
 
 ## Requisitos
 
-- Docker e Docker Compose
-- Credenciais de API do Telegram (api_id e api_hash)
+- Python 3.8+
+- TDLib
+- Redis (opcional, para armazenamento em cache)
 
-## Configuração
+## Instalação
 
-1. Clone este repositório
-2. Crie um arquivo `.env` baseado no `.env.example`:
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/telegram-api.git
+   cd telegram-api
+   ```
 
-```bash
-cp .env.example .env
-```
+2. Crie e ative um ambiente virtual:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # No Windows: venv\Scripts\activate
+   ```
 
-3. Edite o arquivo `.env` com suas credenciais do Telegram:
+3. Instale as dependências:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```
-# Configurações do Telegram
-TELEGRAM_API_ID=seu_api_id
-TELEGRAM_API_HASH=seu_api_hash
-TELEGRAM_PHONE=+5511999999999
+4. Configure as variáveis de ambiente copiando o arquivo `.env.example` para `.env` e editando-o:
+   ```bash
+   cp .env.example .env
+   ```
 
-# Diretórios para dados
-TD_DATABASE_DIRECTORY=./td_db
-TD_FILES_DIRECTORY=./td_files
+## Uso com Docker
 
-# Configurações de segurança
-API_SECRET_KEY=seu_secret_key_muito_seguro
-JWT_SECRET=seu_jwt_secret_muito_seguro
-JWT_EXPIRE_MINUTES=1440
-
-# Modo DEBUG
-DEBUG=False
-```
-
-## Execução
-
-### Com Docker Compose
+Para executar a API usando Docker:
 
 ```bash
-docker-compose up -d
+docker build -t telegram-api .
+docker run -p 8000:8000 -v $(pwd)/.env:/app/.env telegram-api
 ```
 
-### Importando no EasyPanel
+## Variáveis de Ambiente
 
-1. Faça upload dos arquivos para seu servidor
-2. No EasyPanel, vá para "Apps" > "Custom App" > "Import from Docker Compose"
-3. Selecione o arquivo docker-compose.yml
-4. Configure as variáveis de ambiente
+Configure as seguintes variáveis de ambiente:
 
-## Endpoints da API
+- `TELEGRAM_API_ID`: ID da API do Telegram
+- `TELEGRAM_API_HASH`: Hash da API do Telegram
+- `TELEGRAM_BOT_TOKEN`: Token do bot (para uso de bots)
+- `TELEGRAM_PHONE`: Número de telefone (para uso de contas de usuário)
+- `API_KEY`: Chave para autenticação na API
+- `DEBUG`: Define o modo de depuração (true/false)
+- `HOST`: Host para execução do servidor
+- `PORT`: Porta para execução do servidor
 
-A documentação completa dos endpoints está disponível em:
+## Autenticação
 
-- Swagger UI: `http://seu-servidor:8000/docs`
-- ReDoc: `http://seu-servidor:8000/redoc`
+A API usa autenticação por chave de API. Adicione o cabeçalho `X-API-KEY` com sua chave API para todas as requisições.
 
-### Principais Endpoints
+## Documentação
 
-- `/auth/token` - Obter token JWT para autenticação
-- `/users/me` - Obter informações do usuário atual
-- `/chats/list` - Listar chats disponíveis
-- `/messages/{chat_id}/send` - Enviar mensagem para um chat
-- `/messages/{chat_id}/history` - Obter histórico de mensagens
+Para visualizar a documentação completa da API, acesse `/api/v1/docs` após iniciar o servidor.
 
-## Primeiro Acesso
+## Contribuindo
 
-1. Inicie a API
-2. Faça uma solicitação POST para `/auth/token` com o user "admin" e o password definido como `API_SECRET_KEY`
-3. Use o token JWT retornado para autenticar todas as outras solicitações
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
 
 ## Licença
 
-MIT 
+Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes. 
