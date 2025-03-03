@@ -1,0 +1,40 @@
+version: "1.0"
+id: telegram-tdlib-api
+name: Telegram TDLib API
+description: API REST para integração com o Telegram via TDLib
+
+ports:
+  - port: 8000
+    type: http
+    public: true
+
+env:
+  - key: TELEGRAM_API_ID
+    description: API ID do Telegram
+    required: true
+  - key: TELEGRAM_API_HASH
+    description: API Hash do Telegram
+    required: true
+  - key: TELEGRAM_PHONE
+    description: Número de telefone do Telegram (com código do país)
+    required: true
+  - key: API_SECRET_KEY
+    description: Chave secreta para a API
+    required: true
+    generate: true
+  - key: JWT_SECRET
+    description: Segredo para tokens JWT
+    required: true
+    generate: true
+  - key: DEBUG
+    description: Modo de depuração
+    default: "False"
+
+volumes:
+  - path: /app/td_db
+    name: td-database
+  - path: /app/td_files
+    name: td-files
+
+resources:
+  memory: 1024 
