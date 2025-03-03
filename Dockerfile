@@ -1,27 +1,37 @@
 FROM python:3.9-slim
 
-# Instala dependências básicas
-RUN apt-get update && apt-get install -y \
-    curl \
+# Definir variáveis de ambiente
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TZ=America/Sao_Paulo \
+    DEBIAN_FRONTEND=noninteractive
+
+# Instalar pacotes básicos e dependências da TDLib
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    gperf \
+    git \
+    libssl-dev \
+    zlib1g-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Criar diretório de aplicação
 WORKDIR /app
 
-# Cria diretórios para os dados
-RUN mkdir -p /app/td_db /app/td_files
+# Criar diretórios para dados da TDLib
+RUN mkdir -p /app/td_db /app/td_files /app/uploads
 
-# Copia apenas os arquivos necessários primeiro para aproveitar o cache do Docker
+# Copiar requirements.txt e instalar dependências Python
 COPY requirements.txt .
-
-# Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o restante dos arquivos
+# Copiar o restante dos arquivos da aplicação
 COPY . .
 
-# Expõe a porta 8000, mas o EasyPanel gerenciará o mapeamento
+# Porta da aplicação
 EXPOSE 8000
 
-# Comando para iniciar a aplicação usando o novo arquivo main.py
+# Comando para iniciar a aplicação
 CMD ["python", "main.py"] 
