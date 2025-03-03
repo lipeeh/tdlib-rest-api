@@ -23,6 +23,5 @@ COPY . .
 # Expõe a porta 8000, mas o EasyPanel gerenciará o mapeamento
 EXPOSE 8000
 
-# Comando para iniciar a aplicação usando o script Python diretamente
-# Isso evita problemas de carregamento ASGI
-CMD ["python", "app.py"] 
+# Comando para iniciar a aplicação usando Uvicorn diretamente
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"] 
