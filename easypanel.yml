@@ -32,8 +32,8 @@ env:
   - key: DEBUG
     description: Modo de depuração
     default: "False"
-  - key: APP_PORT
-    description: Porta da aplicação
+  - key: PORT
+    description: Porta interna da aplicação
     default: "8000"
 
 volumes:

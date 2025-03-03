@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o restante dos arquivos
 COPY . .
 
-# Expõe a porta usada pela aplicação
+# Expõe a porta 8000, mas o EasyPanel gerenciará o mapeamento
 EXPOSE 8000
 
-# Comando para iniciar a aplicação
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"] 
+# Comando para iniciar a aplicação usando a variável PORT
+CMD uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000} 
