@@ -26,15 +26,24 @@ env:
     description: Segredo para tokens JWT
     required: true
     generate: true
+  - key: JWT_EXPIRE_MINUTES
+    description: Tempo de expiração do token JWT em minutos
+    default: "1440"
   - key: DEBUG
     description: Modo de depuração
     default: "False"
 
 volumes:
-  - path: /app/td_db
-    name: td-database
-  - path: /app/td_files
-    name: td-files
+  td-database:
+    path: /app/td_db
+  td-files:
+    path: /app/td_files
 
 resources:
-  memory: 1024 
+  memory: 1024
+
+services:
+  app:
+    volumes:
+      td-database: /app/td_db
+      td-files: /app/td_files 

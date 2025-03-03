@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - td-database:/app/td_db
+      - td-files:/app/td_files
+    env_file:
+      - .env
+    environment:
+      - TZ=America/Sao_Paulo
+      - TD_DATABASE_DIRECTORY=/app/td_db
+      - TD_FILES_DIRECTORY=/app/td_files
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  td-database:
+    name: telegram-tdlib-database
+  td-files:
+    name: telegram-tdlib-files 
