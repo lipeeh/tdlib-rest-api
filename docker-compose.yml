@@ -1,11 +1,9 @@
-version: '3'
-
 services:
   app:
     build: .
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "${APP_PORT:-8000}:8000"
     volumes:
       - td-database:/app/td_db
       - td-files:/app/td_files

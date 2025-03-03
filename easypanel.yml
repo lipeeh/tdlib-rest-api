@@ -32,6 +32,9 @@ env:
   - key: DEBUG
     description: Modo de depuração
     default: "False"
+  - key: APP_PORT
+    description: Porta da aplicação
+    default: "8000"
 
 volumes:
   td-database:
