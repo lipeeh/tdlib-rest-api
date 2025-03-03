@@ -20,8 +20,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o restante dos arquivos
 COPY . .
 
+# Torna o script de inicialização executável
+RUN chmod +x start.py
+
 # Expõe a porta 8000, mas o EasyPanel gerenciará o mapeamento
 EXPOSE 8000
 
-# Comando para iniciar a aplicação usando Uvicorn diretamente
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"] 
+# Comando para iniciar a aplicação usando o script de inicialização
+CMD ["python", "start.py"] 
