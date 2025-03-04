@@ -21,7 +21,4 @@ cryptography==39.0.2
 # Extras
 flasgger==0.9.5
 gunicorn==20.1.0
-httpx==0.23.3
-
-# Logging
-logging==0.4.9.6 
+httpx==0.23.3 
